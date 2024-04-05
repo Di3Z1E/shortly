@@ -1,11 +1,8 @@
 from nicegui import ui
+from shortly_tools import *
 import pyperclip
-import requests
-import os.path
-import random
-import string
 import time
-import json
+
 
 USERS_URL_JSON = "users_urls.json"
 
@@ -26,6 +23,7 @@ class ShortlyWebsite:
                 add_key_value_to_json(user_url, short_url)
                 time.sleep(3)
                 with self.ui.row():
+                    print('Generating copy button')
                     self.ui.button("Copy Short URL", on_click=lambda: pyperclip.copy(f'{short_url}'))
             else:
                 if not check_duplicated_results:
@@ -42,8 +40,7 @@ class ShortlyWebsite:
             user_input = self.ui.input(label='URL').props('square outlined dense').classes('shadow-lg')
             self.ui.button('Submit').on('click', submit_callback)
 
-        with self.ui.header(elevated=True).style('background-color: rgb(71, 71, 71)').classes(
-                'items-center justify-between'):
+        with self.ui.header(elevated=True).style('background-color: rgb(71, 71, 71)').classes('items-center justify-between'):
             self.ui.label('Shortly!').classes('text-black-600 text-2xl')
 
         ui.separator()
@@ -52,77 +49,10 @@ class ShortlyWebsite:
 
         with self.ui.footer().style('background-color: rgb(71, 71, 71)'):
             self.ui.label('Shortly by Di3Z1E')
+            self.ui.link('Github', 'https://github.com/Di3Z1E').classes('text-black-600')
 
     def run_website(self):
         self.ui.run()
-
-
-def validate_url(user_url):
-    if "http" not in user_url or "https" not in user_url:
-        user_url = 'https://' + user_url
-    try:
-        results = requests.get(user_url)
-        if results.status_code == 200:
-            print("Valid URL")
-            return "True", user_url
-    except (requests.exceptions.MissingSchema, requests.exceptions.ConnectionError):
-        print("Invalid url")
-        return "False", "False"
-
-
-def generate_short_url():
-    characters = string.ascii_letters + string.digits
-    random_string = ''.join(random.choice(characters) for _ in range(8))
-
-    return f"shortly.io/{random_string}"
-
-
-def add_key_value_to_json(key, value):
-    check_json_existence()
-
-    with open(USERS_URL_JSON, 'r') as json_file:
-        try:
-            data = json.load(json_file)
-        except json.decoder.JSONDecodeError:
-            print("Seems like the JSON file is empty, continue without reading.")
-
-    try:
-        data[key] = value
-    except UnboundLocalError:
-        data = {key: value}
-
-    with open(USERS_URL_JSON, 'w') as json_file:
-        json.dump(data, json_file, indent=4)
-
-
-def check_dups(file, url):
-    check_json_existence()
-
-    try:
-        with open(file, "r") as f:
-            content = json.load(f)
-
-        if len(content) == 0:
-            print("File found without any data inside")
-            return True
-
-        for item in content:
-            if item == url:
-                return False
-            else:
-                return True
-    except json.decoder.JSONDecodeError:
-        print("JSON File not exists")
-        return True
-
-
-def check_json_existence():
-    if os.path.isfile(USERS_URL_JSON):
-        print("File exists")
-    else:
-        print("Creating File")
-        with open(USERS_URL_JSON, "w"):
-            pass
 
 
 if __name__ in {"__main__", "__mp_main__"}:
