@@ -1,7 +1,6 @@
-from nicegui import ui
 from shortly_tools import *
+from nicegui import ui
 import pyperclip
-import time
 
 
 USERS_URL_JSON = "users_urls.json"
@@ -21,7 +20,6 @@ class ShortlyWebsite:
                 ui.notify('Valid URL!')
                 short_url = generate_short_url()
                 add_key_value_to_json(user_url, short_url)
-                time.sleep(3)
                 with self.ui.row():
                     print('Generating copy button')
                     self.ui.button("Copy Short URL", on_click=lambda: pyperclip.copy(f'{short_url}'))
