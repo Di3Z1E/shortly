@@ -4,9 +4,10 @@ import requests
 import os.path
 import random
 import string
+import time
 import json
 
-users_url_json = "users_urls.json"
+USERS_URL_JSON = "users_urls.json"
 
 
 class ShortlyWebsite:
@@ -17,12 +18,13 @@ class ShortlyWebsite:
         def submit_callback():
             url = user_input.value
             status, user_url = validate_url(url)
-            check_duplicated_results = check_dups(users_url_json, user_url)
+            check_duplicated_results = check_dups(USERS_URL_JSON, user_url)
 
             if status == "True" and check_duplicated_results:
                 ui.notify('Valid URL!')
                 short_url = generate_short_url()
                 add_key_value_to_json(user_url, short_url)
+                time.sleep(3)
                 with self.ui.row():
                     self.ui.button("Copy Short URL", on_click=lambda: pyperclip.copy(f'{short_url}'))
             else:
@@ -34,7 +36,7 @@ class ShortlyWebsite:
         self.ui.markdown('# Welcome to Shortly!')
         self.ui.markdown('## An easy & secure way to shorten your URLs!')
 
-        self.ui.page_title("Shortly by Di3Z1E")
+        self.ui.page_title("Shortly")
 
         with self.ui.row():
             user_input = self.ui.input(label='URL').props('square outlined dense').classes('shadow-lg')
@@ -44,8 +46,12 @@ class ShortlyWebsite:
                 'items-center justify-between'):
             self.ui.label('Shortly!').classes('text-black-600 text-2xl')
 
+        ui.separator()
+
+        self.ui.markdown('### Latest shorted out URLS')
+
         with self.ui.footer().style('background-color: rgb(71, 71, 71)'):
-            self.ui.label('Di3Z1E')
+            self.ui.label('Shortly by Di3Z1E')
 
     def run_website(self):
         self.ui.run()
@@ -72,14 +78,9 @@ def generate_short_url():
 
 
 def add_key_value_to_json(key, value):
-    if os.path.isfile(users_url_json):
-        print("File exists")
-    else:
-        print("Creating File")
-        with open(users_url_json, "w") as file:
-            pass
+    check_json_existence()
 
-    with open(users_url_json, 'r') as json_file:
+    with open(USERS_URL_JSON, 'r') as json_file:
         try:
             data = json.load(json_file)
         except json.decoder.JSONDecodeError:
@@ -90,19 +91,38 @@ def add_key_value_to_json(key, value):
     except UnboundLocalError:
         data = {key: value}
 
-    with open(users_url_json, 'w') as json_file:
+    with open(USERS_URL_JSON, 'w') as json_file:
         json.dump(data, json_file, indent=4)
 
 
 def check_dups(file, url):
-    with open(file, "r") as f:
-        content = json.load(f)
+    check_json_existence()
 
-    for item in content:
-        if item == url:
-            return False
-        else:
+    try:
+        with open(file, "r") as f:
+            content = json.load(f)
+
+        if len(content) == 0:
+            print("File found without any data inside")
             return True
+
+        for item in content:
+            if item == url:
+                return False
+            else:
+                return True
+    except json.decoder.JSONDecodeError:
+        print("JSON File not exists")
+        return True
+
+
+def check_json_existence():
+    if os.path.isfile(USERS_URL_JSON):
+        print("File exists")
+    else:
+        print("Creating File")
+        with open(USERS_URL_JSON, "w"):
+            pass
 
 
 if __name__ in {"__main__", "__mp_main__"}:
