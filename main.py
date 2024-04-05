@@ -1,4 +1,5 @@
 from nicegui import ui
+import pyperclip
 import requests
 import os.path
 import random
@@ -22,6 +23,8 @@ class ShortlyWebsite:
                 ui.notify('Valid URL!')
                 short_url = generate_short_url()
                 add_key_value_to_json(user_url, short_url)
+                with self.ui.row():
+                    self.ui.button("Copy Short URL", on_click=lambda: pyperclip.copy(f'{short_url}'))
             else:
                 if not check_duplicated_results:
                     ui.notify('ERROR: URL already in database.')
@@ -30,6 +33,8 @@ class ShortlyWebsite:
 
         self.ui.markdown('# Welcome to Shortly!')
         self.ui.markdown('## An easy & secure way to shorten your URLs!')
+
+        self.ui.page_title("Shortly by Di3Z1E")
 
         with self.ui.row():
             user_input = self.ui.input(label='URL').props('square outlined dense').classes('shadow-lg')
