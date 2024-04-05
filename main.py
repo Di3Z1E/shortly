@@ -1,9 +1,11 @@
-import json
-
 from nicegui import ui
 import requests
+import os.path
 import random
 import string
+import json
+
+users_url_json = "users_urls.json"
 
 
 class ShortlyWebsite:
@@ -14,13 +16,17 @@ class ShortlyWebsite:
         def submit_callback():
             url = user_input.value
             status, user_url = validate_url(url)
+            check_duplicated_results = check_dups(users_url_json, user_url)
 
-            if status == "True":
+            if status == "True" and check_duplicated_results:
                 ui.notify('Valid URL!')
                 short_url = generate_short_url()
                 add_key_value_to_json(user_url, short_url)
             else:
-                ui.notify('ERROR: Invalid URL!')
+                if not check_duplicated_results:
+                    ui.notify('ERROR: URL already in database.')
+                elif status == "False":
+                    ui.notify('ERROR: Invalid URL!')
 
         self.ui.markdown('# Welcome to Shortly!')
         self.ui.markdown('## An easy & secure way to shorten your URLs!')
@@ -61,8 +67,14 @@ def generate_short_url():
 
 
 def add_key_value_to_json(key, value):
-    filename = "users_urls.json"
-    with open(filename, 'r') as json_file:
+    if os.path.isfile(users_url_json):
+        print("File exists")
+    else:
+        print("Creating File")
+        with open(users_url_json, "w") as file:
+            pass
+
+    with open(users_url_json, 'r') as json_file:
         try:
             data = json.load(json_file)
         except json.decoder.JSONDecodeError:
@@ -73,8 +85,19 @@ def add_key_value_to_json(key, value):
     except UnboundLocalError:
         data = {key: value}
 
-    with open(filename, 'w') as json_file:
+    with open(users_url_json, 'w') as json_file:
         json.dump(data, json_file, indent=4)
+
+
+def check_dups(file, url):
+    with open(file, "r") as f:
+        content = json.load(f)
+
+    for item in content:
+        if item == url:
+            return False
+        else:
+            return True
 
 
 if __name__ in {"__main__", "__mp_main__"}:
