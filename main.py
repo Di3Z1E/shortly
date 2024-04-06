@@ -1,6 +1,5 @@
 from shortly_tools import *
 from nicegui import ui
-import table_dispaly
 import pyperclip
 
 
@@ -32,7 +31,7 @@ class ShortlyWebsite:
                     ui.notify('ERROR: Invalid URL!')
 
         self.ui.markdown('# Welcome to Shortly!')
-        self.ui.markdown('## An easy & secure way to shorten your URLs!')
+        self.ui.markdown('## Amazingly way to generate a short URL!')
 
         self.ui.page_title("Shortly")
 
@@ -46,7 +45,7 @@ class ShortlyWebsite:
 
         ui.separator()
 
-        self.ui.markdown('### Latest shorted out URLS')
+        self.ui.markdown('### Latest shorted out URLS by users')
 
         def add(src_url, shorten_url):
             table.add_rows({'id': src_url, 'count': shorten_url})
