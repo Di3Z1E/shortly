@@ -1,5 +1,6 @@
 from shortly_tools import *
 from nicegui import ui
+import table_dispaly
 import pyperclip
 
 
@@ -22,6 +23,7 @@ class ShortlyWebsite:
                 add_key_value_to_json(user_url, short_url)
                 with self.ui.row():
                     print('Generating copy button')
+                    add(user_url, short_url)
                     self.ui.button("Copy Short URL", on_click=lambda: pyperclip.copy(f'{short_url}'))
             else:
                 if not check_duplicated_results:
@@ -35,7 +37,8 @@ class ShortlyWebsite:
         self.ui.page_title("Shortly")
 
         with self.ui.row():
-            user_input = self.ui.input(label='URL').props('square outlined dense').classes('shadow-lg')
+            user_input = self.ui.input(label='Insert URL Here').props('square outlined dense').classes('shadow-lg')
+            user_input.props("size=80")
             self.ui.button('Submit').on('click', submit_callback)
 
         with self.ui.header(elevated=True).style('background-color: rgb(71, 71, 71)').classes('items-center justify-between'):
@@ -44,6 +47,27 @@ class ShortlyWebsite:
         ui.separator()
 
         self.ui.markdown('### Latest shorted out URLS')
+
+        def add(src_url, shorten_url):
+            table.add_rows({'id': src_url, 'count': shorten_url})
+
+        columns = [
+            {'name': 'id', 'label': 'Source URL', 'field': 'id', 'align': 'middle'},
+            {'name': 'count', 'label': 'Shorten URL', 'field': 'count', 'align': 'middle'},
+        ]
+
+        table = ui.table(columns=columns, rows=[], row_key='id')
+
+        try:
+            with open(USERS_URL_JSON, "r") as file:
+                content = json.load(file)
+
+                for name, link in content.items():
+                    table.add_rows({'id': name, 'count': link})
+
+        except FileNotFoundError:
+            print("No JSON file found")
+            content = {}
 
         with self.ui.footer().style('background-color: rgb(71, 71, 71)'):
             self.ui.label('Shortly by Di3Z1E')

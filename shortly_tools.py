@@ -36,7 +36,7 @@ def generate_short_url():
     :return:
     """
     characters = string.ascii_letters + string.digits
-    random_string = ''.join(random.choice(characters) for _ in range(8))
+    random_string = ''.join(random.choice(characters) for _ in range(4))
 
     return f"https://www.shortly.io/{random_string}"
 
